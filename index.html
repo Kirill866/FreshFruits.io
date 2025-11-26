@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreshFruits - Магазин фруктов</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .star-filled {
+            color: #fbbf24;
+        }
+        .star-empty {
+            color: #d1d5db;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50">
+    <div id="app">
+        <!-- Header -->
+        <header class="bg-white shadow-sm sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    <!-- Logo -->
+                    <div class="flex items-center">
+                        <i class="fas fa-leaf text-green-600 text-2xl"></i>
+                        <span class="ml-2 text-2xl font-bold text-gray-900">FreshFruits</span>
+                    </div>
+
+                    <!-- Search Bar -->
+                    <div class="hidden md:flex flex-1 max-w-lg mx-8">
+                        <div class="relative w-full">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input
+                                type="text"
+                                id="search-input"
+                                placeholder="Поиск фруктов..."
+                                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Cart Icon -->
+                    <div class="relative">
+                        <button
+                            id="cart-toggle"
+                            class="flex items-center space-x-1 text-gray-700 hover:text-green-600 transition-colors"
+                        >
+                            <i class="fas fa-shopping-cart text-xl"></i>
+                            <span id="cart-count" class="absolute -top-2 -right-2 bg-green-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                        </button>
+                    </div>
+
+                    <!-- Mobile menu button -->
+                    <button
+                        id="mobile-menu-toggle"
+                        class="md:hidden ml-4"
+                    >
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Search -->
+            <div id="mobile-search" class="md:hidden px-4 py-4 border-t hidden">
+                <div class="relative">
+                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input
+                        type="text"
+                        id="mobile-search-input"
+                        placeholder="Поиск фруктов..."
+                        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    />
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="bg-white border-b">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex space-x-8 overflow-x-auto py-4 hide-scrollbar" id="category-buttons">
+                    <!-- Categories will be inserted here by JavaScript -->
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Hero Section -->
+            <div class="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-8 mb-12 text-white">
+                <div class="max-w-2xl">
+                    <h1 class="text-4xl font-bold mb-4">Свежие фрукты прямо к вашему столу</h1>
+                    <p class="text-xl mb-6 opacity-90">
+                        Натуральные, спелые и вкусные фрукты с доставкой в течение 24 часов
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-truck mr-2"></i>
+                            <span>Бесплатная доставка от 1000₽</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-award mr-2"></i>
+                            <span>Гарантия свежести</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <!-- Products will be inserted here by JavaScript -->
+            </div>
+
+            <div id="no-products" class="text-center py-12 hidden">
+                <div class="text-2xl text-gray-600 mb-4">Не найдено продуктов</div>
+                <p class="text-gray-500">Попробуйте изменить поисковый запрос или категорию</p>
+            </div>
+        </main>
+
+        <!-- Cart Sidebar -->
+        <div id="cart-sidebar" class="fixed inset-0 z-50 overflow-hidden hidden">
+            <div id="cart-overlay" class="absolute inset-0 bg-black bg-opacity-50"></div>
+            <div class="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-xl">
+                <div class="flex flex-col h-full">
+                    <div class="flex items-center justify-between p-4 border-b">
+                        <h2 class="text-lg font-semibold">Корзина (<span id="cart-items-count">0</span>)</h2>
+                        <button
+                            id="close-cart"
+                            class="p-1 rounded-full hover:bg-gray-100"
+                        >
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div id="cart-content" class="flex-1 overflow-y-auto p-4">
+                        <!-- Cart items will be inserted here by JavaScript -->
+                    </div>
+                    
+                    <div id="cart-footer" class="border-t p-4 hidden">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-lg font-semibold">Итого:</span>
+                            <span id="cart-total" class="text-2xl font-bold text-green-600">0₽</span>
+                        </div>
+                        <button class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
+                            Оформить заказ
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock data for fruits
+        const fruits = [
+            {
+                id: 1,
+                name: 'Яблоки Гала',
+                price: 89,
+                originalPrice: 120,
+                image: 'https://cdn.puzzlegarage.com/img/puzzle/1f/20607_thumb_r.v1.jpg',
+                rating: 4.8,
+                reviews: 124,
+                category: 'фрукты',
+                inStock: true,
+                description: 'Сочные и сладкие яблоки сорта Гала'
+            },
+            {
+                id: 2,
+                name: 'Бананы',
+                price: 65,
+                originalPrice: 75,
+                image: 'https://cdn.culture.ru/images/d2811963-0175-558b-8a22-483bc551aa1b',
+                rating: 4.6,
+                reviews: 89,
+                category: 'фрукты',
+                inStock: true,
+                description: 'Спелые бананы высшего качества'
+            },
+            {
+                id: 3,
+                name: 'Апельсины',
+                price: 110,
+                originalPrice: 130,
+                image: 'https://foodufa.ru/wp-content/uploads/2021/10/68ffb312130511e9bef54ccc6ad7de18_15348ef2108511ebbf4d4ccc6ad7de18-1770x1180.jpg',
+                rating: 4.9,
+                reviews: 203,
+                category: 'цитрусовые',
+                inStock: true,
+                description: 'Сочные апельсины из Испании'
+            },
+            {
+                id: 4,
+                name: 'Клубника',
+                price: 280,
+                originalPrice: 320,
+                image: 'https://image.fonwall.ru/o/qc/a-strawberry-berries-harvest.jpeg?auto=compress&fit=crop&w=1366&h=768&domain=img3.fonwall.ru',
+                rating: 4.7,
+                reviews: 156,
+                category: 'ягоды',
+                inStock: true,
+                description: 'Свежая клубника, выращенная в теплице'
+            },
+            {
+                id: 5,
+                name: 'Манго',
+                price: 180,
+                originalPrice: 220,
+                image: 'https://exoticfruits.co.uk/cdn/shop/files/mango-palmer-exoticfruitscouk-749356.png?v=1708530915',
+                rating: 4.5,
+                reviews: 78,
+                category: 'экзотика',
+                inStock: true,
+                description: 'Спелые манго из Таиланда'
+            },
+            {
+                id: 6,
+                name: 'Виноград',
+                price: 150,
+                originalPrice: 180,
+                image: 'https://static.tildacdn.com/tild3261-6463-4761-b532-333537356136/_.png',
+                rating: 4.4,
+                reviews: 92,
+                category: 'фрукты',
+                inStock: true,
+                description: 'Сладкий виноград без косточек'
+            }
+        ];
+
+        const categories = ['все', 'фрукты', 'цитрусовые', 'ягоды', 'экзотика'];
+
+        // State
+        let cartItems = [];
+        let isCartOpen = false;
+        let isMenuOpen = false;
+        let searchQuery = '';
+        let selectedCategory = 'все';
+        let filteredFruits = [...fruits];
+
+        // DOM Elements
+        const searchInput = document.getElementById('search-input');
+        const mobileSearchInput = document.getElementById('mobile-search-input');
+        const mobileSearch = document.getElementById('mobile-search');
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const cartToggle = document.getElementById('cart-toggle');
+        const cartSidebar = document.getElementById('cart-sidebar');
+        const cartOverlay = document.getElementById('cart-overlay');
+        const closeCart = document.getElementById('close-cart');
+        const categoryButtons = document.getElementById('category-buttons');
+        const productsGrid = document.getElementById('products-grid');
+        const noProducts = document.getElementById('no-products');
+        const cartContent = document.getElementById('cart-content');
+        const cartFooter = document.getElementById('cart-footer');
+        const cartCount = document.getElementById('cart-count');
+        const cartItemsCount = document.getElementById('cart-items-count');
+        const cartTotal = document.getElementById('cart-total');
+
+        // Initialize the app
+        function init() {
+            renderCategories();
+            renderProducts();
+            attachEventListeners();
+        }
+
+        // Render categories
+        function renderCategories() {
+            categoryButtons.innerHTML = categories.map(category => `
+                <button
+                    data-category="${category}"
+                    class="category-btn whitespace-nowrap px-3 py-2 text-sm font-medium capitalize transition-colors ${
+                        selectedCategory === category
+                            ? 'text-green-600 border-b-2 border-green-600'
+                            : 'text-gray-500 hover:text-green-600'
+                    }"
+                >
+                    ${category}
+                </button>
+            `).join('');
+        }
+
+        // Render products
+        function renderProducts() {
+            filterProducts();
+            
+            if (filteredFruits.length === 0) {
+                productsGrid.classList.add('hidden');
+                noProducts.classList.remove('hidden');
+                return;
+            }
+            
+            productsGrid.classList.remove('hidden');
+            noProducts.classList.add('hidden');
+            
+            productsGrid.innerHTML = filteredFruits.map(fruit => `
+                <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <div class="relative">
+                        <img
+                            src="${fruit.image}"
+                            alt="${fruit.name}"
+                            class="w-full h-48 object-cover"
+                        />
+                        ${fruit.originalPrice > fruit.price ? `
+                            <div class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
+                                -${Math.round(((fruit.originalPrice - fruit.price) / fruit.originalPrice) * 100)}%
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="p-4">
+                        <h3 class="font-semibold text-lg text-gray-900 mb-2">${fruit.name}</h3>
+                        <p class="text-gray-600 text-sm mb-3">${fruit.description}</p>
+                        
+                        <div class="flex items-center mb-3">
+                            <div class="flex">
+                                ${renderStars(fruit.rating)}
+                            </div>
+                            <span class="ml-2 text-sm text-gray-600">
+                                ${fruit.rating} (${fruit.reviews})
+                            </span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-2xl font-bold text-green-600">${fruit.price}₽</span>
+                                ${fruit.originalPrice > fruit.price ? `
+                                    <span class="text-gray-500 line-through text-sm">${fruit.originalPrice}₽</span>
+                                ` : ''}
+                            </div>
+                            
+                            <button
+                                data-fruit-id="${fruit.id}"
+                                class="add-to-cart-btn px-4 py-2 rounded-lg font-medium transition-colors ${
+                                    fruit.inStock
+                                        ? 'bg-green-600 text-white hover:bg-green-700'
+                                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                }"
+                                ${!fruit.inStock ? 'disabled' : ''}
+                            >
+                                ${fruit.inStock ? 'В корзину' : 'Нет в наличии'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render stars for rating
+        function renderStars(rating) {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= Math.floor(rating)) {
+                    stars += `<i class="fas fa-star star-filled"></i>`;
+                } else {
+                    stars += `<i class="far fa-star star-empty"></i>`;
+                }
+            }
+            return stars;
+        }
+
+        // Filter products based on search and category
+        function filterProducts() {
+            let filtered = [...fruits];
+            
+            if (selectedCategory !== 'все') {
+                filtered = filtered.filter(fruit => fruit.category === selectedCategory);
+            }
+            
+            if (searchQuery) {
+                filtered = filtered.filter(fruit => 
+                    fruit.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    fruit.description.toLowerCase().includes(searchQuery.toLowerCase())
+                );
+            }
+            
+            filteredFruits = filtered;
+        }
+
+        // Render cart
+        function renderCart() {
+            const totalItems = getTotalItems();
+            
+            // Update cart count badge
+            if (totalItems > 0) {
+                cartCount.textContent = totalItems;
+                cartCount.classList.remove('hidden');
+            } else {
+                cartCount.classList.add('hidden');
+            }
+            
+            // Update cart items count
+            cartItemsCount.textContent = totalItems;
+            
+            // Render cart content
+            if (cartItems.length === 0) {
+                cartContent.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        Корзина пуста
+                    </div>
+                `;
+                cartFooter.classList.add('hidden');
+            } else {
+                cartContent.innerHTML = cartItems.map(item => `
+                    <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg mb-4">
+                        <img
+                            src="${item.image}"
+                            alt="${item.name}"
+                            class="w-16 h-16 object-cover rounded"
+                        />
+                        <div class="flex-1">
+                            <h4 class="font-medium text-gray-900">${item.name}</h4>
+                            <p class="text-green-600 font-semibold">${item.price}₽</p>
+                            <div class="flex items-center mt-2">
+                                <button
+                                    data-item-id="${item.id}"
+                                    class="decrease-quantity w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300"
+                                >
+                                    -
+                                </button>
+                                <span class="mx-2">${item.quantity}</span>
+                                <button
+                                    data-item-id="${item.id}"
+                                    class="increase-quantity w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300"
+                                >
+                                    +
+                                </button>
+                                <button
+                                    data-item-id="${item.id}"
+                                    class="remove-item ml-2 text-red-500 hover:text-red-700"
+                                >
+                                    Удалить
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                cartFooter.classList.remove('hidden');
+                cartTotal.textContent = `${getTotalPrice()}₽`;
+            }
+        }
+
+        // Cart functions
+        function addToCart(fruit) {
+            const existingItem = cartItems.find(item => item.id === fruit.id);
+            if (existingItem) {
+                cartItems = cartItems.map(item => 
+                    item.id === fruit.id 
+                        ? { ...item, quantity: item.quantity + 1 }
+                        : item
+                );
+            } else {
+                cartItems = [...cartItems, { ...fruit, quantity: 1 }];
+            }
+            renderCart();
+        }
+
+        function removeFromCart(id) {
+            cartItems = cartItems.filter(item => item.id !== id);
+            renderCart();
+        }
+
+        function updateQuantity(id, newQuantity) {
+            if (newQuantity === 0) {
+                removeFromCart(id);
+                return;
+            }
+            cartItems = cartItems.map(item => 
+                item.id === id ? { ...item, quantity: newQuantity } : item
+            );
+            renderCart();
+        }
+
+        function getTotalPrice() {
+            return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+        }
+
+        function getTotalItems() {
+            return cartItems.reduce((total, item) => total + item.quantity, 0);
+        }
+
+        // Event listeners
+        function attachEventListeners() {
+            // Search functionality
+            searchInput.addEventListener('input', (e) => {
+                searchQuery = e.target.value;
+                renderProducts();
+            });
+            
+            mobileSearchInput.addEventListener('input', (e) => {
+                searchQuery = e.target.value;
+                renderProducts();
+            });
+
+            // Mobile menu toggle
+            mobileMenuToggle.addEventListener('click', () => {
+                isMenuOpen = !isMenuOpen;
+                mobileSearch.classList.toggle('hidden', !isMenuOpen);
+                mobileMenuToggle.innerHTML = isMenuOpen 
+                    ? '<i class="fas fa-times text-xl"></i>' 
+                    : '<i class="fas fa-bars text-xl"></i>';
+            });
+
+            // Cart toggle
+            cartToggle.addEventListener('click', () => {
+                isCartOpen = !isCartOpen;
+                cartSidebar.classList.toggle('hidden', !isCartOpen);
+            });
+
+            cartOverlay.addEventListener('click', () => {
+                isCartOpen = false;
+                cartSidebar.classList.add('hidden');
+            });
+
+            closeCart.addEventListener('click', () => {
+                isCartOpen = false;
+                cartSidebar.classList.add('hidden');
+            });
+
+            // Category buttons
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    selectedCategory = btn.dataset.category;
+                    renderCategories();
+                    renderProducts();
+                });
+            });
+
+            // Add to cart buttons
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('add-to-cart-btn')) {
+                    const fruitId = parseInt(e.target.dataset.fruitId);
+                    const fruit = fruits.find(f => f.id === fruitId);
+                    if (fruit) {
+                        addToCart(fruit);
+                    }
+                }
+            });
+
+            // Cart item controls
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('increase-quantity')) {
+                    const itemId = parseInt(e.target.dataset.itemId);
+                    const item = cartItems.find(item => item.id === itemId);
+                    if (item) {
+                        updateQuantity(itemId, item.quantity + 1);
+                    }
+                }
+                
+                if (e.target.classList.contains('decrease-quantity')) {
+                    const itemId = parseInt(e.target.dataset.itemId);
+                    const item = cartItems.find(item => item.id === itemId);
+                    if (item) {
+                        updateQuantity(itemId, item.quantity - 1);
+                    }
+                }
+                
+                if (e.target.classList.contains('remove-item')) {
+                    const itemId = parseInt(e.target.dataset.itemId);
+                    removeFromCart(itemId);
+                }
+            });
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
